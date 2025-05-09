@@ -12,7 +12,7 @@ export default function Home() {
           <a href="/signup" className="btn btn-primary">
             Dołącz teraz
           </a>
-          <Link href="/books" className="btn btn-secondary">
+          <Link href="/main" className="btn btn-secondary">
             Przeglądaj katalog
           </Link>
         </div>
