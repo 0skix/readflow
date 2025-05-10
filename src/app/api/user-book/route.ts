@@ -78,3 +78,27 @@ export async function PATCH(req: Request) {
 
   return NextResponse.json({ success: true });
 }
+
+
+export async function DELETE(req: Request) {
+  const { id } = await req.json();
+  const supabase = await createClient();
+  const { data: { user }, error: authErr } = await supabase.auth.getUser();
+  if (authErr || !user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+
+  const { error } = await supabase
+    .from("user_books")
+    .delete()
+    .eq("id", id)
+    .eq("user_id", user.id);
+
+  if (error) {
+    console.error("DB error DELETE:", error);
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+
+  return NextResponse.json({ success: true });
+}

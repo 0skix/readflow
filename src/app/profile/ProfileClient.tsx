@@ -26,14 +26,14 @@ export default function ProfileClient({
   ) => {
     setLoadingIds((ids) => [...ids, book.id]);
     try {
-      const resp = await fetch("/api/user-book", {
+      const resp = await fetch("/api/user_books", {
         method: "PATCH",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id: book.id, status: newStatus }),
       });
-      const payload = await resp.json();
-      if (!resp.ok) throw new Error(payload.error || "Błąd aktualizacji");
+      const { success, error } = await resp.json();
+      if (!success) throw new Error(error);
       setBooks((prev) =>
         prev.map((b) => (b.id === book.id ? { ...b, status: newStatus } : b))
       );
@@ -41,7 +41,30 @@ export default function ProfileClient({
       if (err instanceof Error) {
         alert(err.message);
       } else {
-        alert("An unknown error occurred");
+        alert("An unknown error occurred.");
+      }
+    } finally {
+      setLoadingIds((ids) => ids.filter((i) => i !== book.id));
+    }
+  };
+
+  const deleteBook = async (book: UserBook) => {
+    setLoadingIds((ids) => [...ids, book.id]);
+    try {
+      const resp = await fetch("/api/user-book", {
+        method: "DELETE",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: book.id }),
+      });
+      const { success, error } = await resp.json();
+      if (!success) throw new Error(error);
+      setBooks((prev) => prev.filter((b) => b.id !== book.id));
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        alert(err.message);
+      } else {
+        alert("An unknown error occurred.");
       }
     } finally {
       setLoadingIds((ids) => ids.filter((i) => i !== book.id));
@@ -62,7 +85,7 @@ export default function ProfileClient({
   const statusOrder: UserBook["status"][] = ["to_read", "reading", "read"];
 
   return (
-    <div className="w-full max-w-screen-xl  mx-auto p-4">
+    <div className="w-full max-w-screen-xl mx-auto p-4">
       <div className="flex flex-col md:flex-row gap-8">
         {statusOrder.map((status) => (
           <div
@@ -85,16 +108,18 @@ export default function ProfileClient({
                         pages={book.pages}
                       />
 
-                      <div className="mt-2 flex justify-center absolute p-2">
+                      {/* Dropdown */}
+                      <div className="m-4 flex justify-center absolute">
                         <div className="dropdown">
                           <button
                             tabIndex={0}
-                            className="btn btn-sm btn-outline"
+                            className="btn btn-primary btn-sm "
+                            disabled={isLoading}
                           >
                             {isLoading ? (
                               <span className="loading loading-spinner loading-sm"></span>
                             ) : (
-                              "Zmień status ▾"
+                              "Opcje ▾"
                             )}
                           </button>
                           <ul
@@ -114,6 +139,15 @@ export default function ProfileClient({
                                   </button>
                                 </li>
                               ))}
+                            <li>
+                              <button
+                                disabled={isLoading}
+                                onClick={() => deleteBook(book)}
+                                className="btn btn-ghost btn-sm w-full justify-start text-error"
+                              >
+                                Usuń książkę
+                              </button>
+                            </li>
                           </ul>
                         </div>
                       </div>
