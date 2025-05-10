@@ -1,59 +1,28 @@
-"use client";
-import { useEffect, useState } from "react";
-import BookCard from "@/components/BookCard";
+import { createClient } from "@/utils/supabase/server";
+import { redirect } from "next/navigation";
+import ProfileClient from "./ProfileClient";
 
-type UserBook = {
-  id: number;
-  book_key: string;
-  title: string;
-  author: string;
-  cover_url?: string;
-  pages?: number;
-  status: "to_read" | "reading" | "read";
-};
+export default async function ProfilePage() {
+  // Inicjalizujemy klienta Supabase po stronie serwera
+  const supabase = await createClient();
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
 
-export default function ProfilePage() {
-  const [books, setBooks] = useState<UserBook[]>([]);
+  // Jeśli brak sesji, przekierowujemy na /login
+  if (!session) redirect("/login");
 
-  useEffect(() => {
-    fetch("/api/user-books")
-      .then((res) => res.json())
-      .then((data) => setBooks(data || []));
-  }, []);
+  // Pobieramy książki użytkownika
+  const { data: books, error } = await supabase
+    .from("user_books")
+    .select("*")
+    .order("inserted_at", { ascending: false });
+  if (error) throw new Error(error.message);
 
-  const groups = {
-    to_read: books.filter((b) => b.status === "to_read"),
-    reading: books.filter((b) => b.status === "reading"),
-    read: books.filter((b) => b.status === "read"),
-  };
-
+  // Przekazujemy wstępne dane do client component
   return (
-    <main
-      className="flex min-h-screen flex-row  justify-between p-4 gap-5
-     bg-neutral"
-    >
-      {(["to_read", "reading", "read"] as const).map((status) => (
-        <div className="card bg-base-100 w-96 shadow-sm p-4" key={status}>
-          <h2 className="text-xl font-semibold mb-4 capitalize">
-            {status.replace("_", " ")}
-          </h2>
-          <div className="space-y-4">
-            {groups[status].map((book) => (
-              <BookCard
-                key={book.id}
-                title={book.title}
-                author={book.author}
-                coverUrl={book.cover_url}
-                pages={book.pages}
-                onDetails={() => {}}
-              />
-            ))}
-            {groups[status].length === 0 && (
-              <p className="text-gray-500">Brak książek</p>
-            )}
-          </div>
-        </div>
-      ))}
+    <main className="min-h-[100vh] bg-neutral">
+      <ProfileClient initialBooks={books} />
     </main>
   );
 }
