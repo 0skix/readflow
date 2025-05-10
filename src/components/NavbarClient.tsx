@@ -1,9 +1,14 @@
+"use client";
 import React from "react";
 import profile from "../../public/globe.svg";
 import Link from "next/link";
 import Image from "next/image";
 
-const Navbar = () => {
+interface NavbarClientProps {
+  user: { id: string; email: string } | null;
+}
+
+export default function NavbarClient({ user }: NavbarClientProps) {
   return (
     <div className="navbar bg-base-100">
       <div className="navbar-start">
@@ -43,32 +48,35 @@ const Navbar = () => {
               <Link href="/catalog">Katalog Książek</Link>
             </li>
           </ul>
-
-          <div className="dropdown dropdown-end">
-            <label tabIndex={0} className="btn btn-ghost btn-circle avatar">
-              <div className="w-10 rounded-full">
-                <Image src={profile} alt="profile" />
-              </div>
-            </label>
-            <ul
-              tabIndex={0}
-              className="menu menu-compact z-50 dropdown-content mt-3 p-2 shadow bg-base-100 rounded-box w-52"
-            >
-              <li>
-                <a>Profil</a>
-              </li>
-              <li>
-                <a>Ustawienia</a>
-              </li>
-              <li>
-                <a>Wyloguj</a>
-              </li>
-            </ul>
-          </div>
+          {user && (
+            <div className="dropdown dropdown-end">
+              <label tabIndex={0} className="btn btn-ghost btn-circle avatar">
+                <div className="w-10 rounded-full">
+                  <Image src={profile} alt="profile" />
+                </div>
+              </label>
+              <ul
+                tabIndex={0}
+                className="menu menu-compact z-50 dropdown-content mt-3 p-2 shadow bg-base-100 rounded-box w-52"
+              >
+                <li>
+                  <a>Profil</a>
+                </li>
+                <li>
+                  <a>Ustawienia</a>
+                </li>
+                <li>
+                  <form action="api/auth/signout" method="post">
+                    <button className="button block" type="submit">
+                      Sign out
+                    </button>
+                  </form>
+                </li>
+              </ul>
+            </div>
+          )}
         </div>
       </div>
     </div>
   );
-};
-
-export default Navbar;
+}
