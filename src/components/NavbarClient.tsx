@@ -60,7 +60,7 @@ export default function NavbarClient({ user }: NavbarClientProps) {
                 className="menu menu-compact z-50 dropdown-content mt-3 p-2 shadow bg-base-100 rounded-box w-52"
               >
                 <li>
-                  <a>Profil</a>
+                  <Link href="/profile">Profil</Link>
                 </li>
                 <li>
                   <a>Ustawienia</a>

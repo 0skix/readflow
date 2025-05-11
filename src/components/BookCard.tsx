@@ -7,7 +7,6 @@ export interface BookCardProps {
   coverUrl?: string | null;
   pages?: number | null;
   genre?: string;
-  onDetails?: () => void;
 }
 
 export default function BookCard({
@@ -16,7 +15,6 @@ export default function BookCard({
   coverUrl,
   pages,
   genre,
-  onDetails,
 }: BookCardProps) {
   return (
     <div className="card w-80 bg-base-100 shadow-lg rounded-lg overflow-hidden">
@@ -44,13 +42,7 @@ export default function BookCard({
         <div className="mt-3 text-sm">
           {pages != null && <span>Liczba stron: {pages}</span>}
         </div>
-        <div className="card-actions justify-end mt-6">
-          {onDetails && (
-            <button onClick={onDetails} className="btn btn-primary btn-md">
-              Szczegóły
-            </button>
-          )}
-        </div>
+        <div className="card-actions justify-end mt-6"></div>
       </div>
     </div>
   );
